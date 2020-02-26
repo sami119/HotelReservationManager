@@ -1,0 +1,77 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+
+@model IEnumerable<HotelReservationManager.Models.Room>
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    @if ((await AuthorizationService.AuthorizeAsync(User, "RequireAdministratorRole")).Succeeded)
+    {
+    <a asp-action="Create">Create New</a>
+    }
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Room Capacity
+            </th>
+            <th>
+                Type of the room
+            </th>
+            <th>
+                Is the room available?
+            </th>
+            <th>
+                Price per bed for Adult
+            </th>
+            <th>
+                Price per bed for Child
+            </th>
+            <th>
+                Room Number
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Capacity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item._Type)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsAvailable)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PricePerBedForAdult)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PricePerBedForChild)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoomNumber)
+                </td>
+                <td>
+                    @if ((await AuthorizationService.AuthorizeAsync(User, "RequireAdministratorRole")).Succeeded)
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.ID">Edit</a>
+                    } |
+                    <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+                    @if ((await AuthorizationService.AuthorizeAsync(User, "RequireAdministratorRole")).Succeeded)
+                    {
+                        <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
