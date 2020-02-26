@@ -13,6 +13,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using HotelReservationManager.Areas;
+using Microsoft.AspNetCore.Http;
+using HotelReservationManager.Services;
 
 namespace HotelReservationManager
 {
@@ -43,6 +45,10 @@ namespace HotelReservationManager
                 options.AddPolicy("RequireAdministratorRole",
                      policy => policy.RequireRole("Admin"));
             });
+          
+            //Add new services in injection container
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<IUserIdentityProvider, UserIdentityProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
