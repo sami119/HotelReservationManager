@@ -1,0 +1,64 @@
+﻿@model HotelReservationManager.Models.Room
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Room</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Capacity" class="control-label">Room Capacity</label>
+                <input asp-for="Capacity" class="form-control" />
+                <span asp-validation-for="Capacity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="_Type" class="control-label">Type of the room</label>
+                <select asp-for="_Type" class="form-control">
+                    <option value="0">Two Single Beds</option>
+                    <option value="1">Apartament</option>
+                    <option value="2">Room With Double Bed</option>
+                    <option value="3">Penthouse</option>
+                    <option value="4">Мaisonette</option>
+                </select>
+                <span asp-validation-for="_Type" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsAvailable" /> Is the room available?
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="PricePerBedForAdult" class="control-label">Price per bed for Adult</label>
+                <input asp-for="PricePerBedForAdult" class="form-control" />
+                <span asp-validation-for="PricePerBedForAdult" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PricePerBedForChild" class="control-label">Price per bed for Child</label>
+                <input asp-for="PricePerBedForChild" class="form-control" />
+                <span asp-validation-for="PricePerBedForChild" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RoomNumber" class="control-label">Room Number</label>
+                <input asp-for="RoomNumber" class="form-control" />
+                <span asp-validation-for="RoomNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
