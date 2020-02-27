@@ -43,7 +43,7 @@ namespace HotelReservationManager.Data.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Clients");
-                   }
+                });
             modelBuilder.Entity("HotelReservationManager.Models.Room", b =>
             {
                     b.Property<int>("ID")
