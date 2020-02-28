@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using HotelReservationManager.Data;
+using HotelReservationManager.Models;
+using HotelReservationManager.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using HotelReservationManager.Data;
-using HotelReservationManager.Models;
-using Microsoft.AspNetCore.Authorization;
 
 namespace HotelReservationManager.Controllers
 {
@@ -15,6 +14,7 @@ namespace HotelReservationManager.Controllers
     public class RoomsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private int lastPageSize;
 
         public RoomsController(ApplicationDbContext context)
         {
@@ -22,10 +22,72 @@ namespace HotelReservationManager.Controllers
         }
 
         // GET: Rooms
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? pageNumber, int pageSize)
         {
-            return View(await _context.Rooms.ToListAsync());
+            ViewData["CapacitySortParm"] = String.IsNullOrEmpty(sortOrder) ? "capacity_desc" : "capacity";
+            ViewData["_TypeSortParm"] = sortOrder == "_type" ? "_type_desc" : "_type";
+            ViewData["IsAvailableSortParm"] = sortOrder == "IsAvailable" ? "isAvailable_desc" : "IsAvaliable";
+            //ViewData["CurrentFilter"] = searchString;
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["PageSize"] = pageSize;
+            if (TempData["LastPageSize"] != null)
+            {
+                int lastPageSize = (int)TempData["LastPageSize"];
+            }
+
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            var rooms = from s in _context.Rooms select s;
+
+            //if (!String.IsNullOrEmpty(searchString))
+            //{
+            //    rooms = rooms.Where(s => s.RoomNumber.Contains(searchString));
+            //}
+
+            switch (sortOrder)
+            {
+                case "capacity":
+                    rooms = rooms.OrderBy(s => s.Capacity);
+                    break;
+                case "capacity_desc":
+                    rooms = rooms.OrderByDescending(s => s.Capacity);
+                    break;
+                case "_type":
+                    rooms = rooms.OrderBy(s => s._Type);
+                    break;
+                case "_type_desc":
+                    rooms = rooms.OrderByDescending(s => s._Type);
+                    break;
+                case "IsAvaliable":
+                    rooms = rooms.OrderBy(s => s.IsAvailable);
+                    break;
+                case "isAvailable_desc":
+                    rooms = rooms.OrderByDescending(s => s.IsAvailable);
+                    break;
+                default:
+                    rooms = rooms.OrderBy(s => s.Capacity);
+                    break;
+            }
+
+            if (pageSize != 0)
+            {
+                lastPageSize = pageSize;
+            }
+            else if (lastPageSize == 0 && pageSize == 0)
+            {
+                lastPageSize = 10;
+            }
+
+            return View(await PaginatedList<Room>.CreateAsync(rooms.AsNoTracking(), pageNumber ?? 1, lastPageSize));
         }
+        
 
         // GET: Rooms/Details/5
         public async Task<IActionResult> Details(int? id)
