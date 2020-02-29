@@ -13,9 +13,19 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
+                <label asp-for="UserName" class="control-label">Username</label>
+                <input asp-for="UserName" class="form-control" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="Name" class="control-label">First Name</label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Surname" class="control-label">Second Name</label>
+                <input asp-for="Surname" class="form-control" />
+                <span asp-validation-for="Surname" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Familyname" class="control-label">Last Name</label>
@@ -31,6 +41,26 @@
                 <label asp-for="Email" class="control-label">E-mail</label>
                 <input asp-for="Email" class="form-control" />
                 <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EGN" class="control-label">EGN</label>
+                <input asp-for="EGN" class="form-control" />
+                <span asp-validation-for="EGN" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IsActive" class="control-label">IsActive</label>
+                <input asp-for="IsActive" class="form-control" />
+                <span asp-validation-for="IsActive" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DateOfAppointment" class="control-label">IsActive</label>
+                <input asp-for="DateOfAppointment" class="form-control" />
+                <span asp-validation-for="DateOfAppointment" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DateOfDismissal" class="control-label">IsActive</label>
+                <input asp-for="DateOfDismissal" class="form-control" />
+                <span asp-validation-for="DateOfDismissal" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

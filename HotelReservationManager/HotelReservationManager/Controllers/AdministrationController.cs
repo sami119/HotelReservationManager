@@ -21,72 +21,21 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HotelReservationManager.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdministrationController : Controller
     {
+
         private readonly UserManager<HotelManagerUser> _userManager;
-        private readonly SignInManager<HotelManagerUser> _signInManager;
-        private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
 
+        /// <summary>
+        /// Initializes _userManager
+        /// </summary>
+        /// <param name="userManager"></param>
         public AdministrationController(
-            UserManager<HotelManagerUser> userManager,
-            SignInManager<HotelManagerUser> signInManager,
-            ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            UserManager<HotelManagerUser> userManager)
         {
-             _userManager = userManager;
-            _signInManager = signInManager;
-            _logger = logger;
-            _emailSender = emailSender;
+            _userManager = userManager;
         }
-
-        [BindProperty]
-        public InputModel Input { get; set; }
-        public class InputModel
-        {
-            [Required]
-            [EmailAddress]
-            [Display(Name = "Имейл")]
-            public string Email { get; set; }
-
-            [Required]
-            [Display(Name = "Потребителско Име")]
-            public string Username { get; set; }
-
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
-            [DataType(DataType.Password)]
-            [Display(Name = "Парола")]
-            public string Password { get; set; }
-
-            [Required]
-            [Display(Name = "Име")]
-            public string Name { get; set; }
-
-            [Required]
-            [Display(Name = "Презиме")]
-            public string SurName { get; set; }
-
-            [Required]
-            [Display(Name = "Фамилия")]
-            public string FamilyName { get; set; }
-
-            [Required]
-            [Display(Name = "ЕГН")]
-            public string EGN { get; set; }
-
-            [Required]
-            [Display(Name = "Телефонен номер")]
-            public string PhoneNumber { get; set; }
-
-            [Required]
-            [Display(Name = "Дата на назначаване")]
-            public DateTime DateOfApointment { get; set; }
-
-            public string ReturnUrl { get; set; }
-        }
-
-        public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
         // GET: Administration
         public async Task<IActionResult> Index()
@@ -111,6 +60,10 @@ namespace HotelReservationManager.Controllers
             return View(user);
         }
 
+        /// <summary>
+        /// Redirects to Areas/Identity/Account/Register
+        /// </summary>
+        /// <returns></returns>
         // GET: Administration/Create
         public IActionResult Create()
         {
@@ -118,53 +71,16 @@ namespace HotelReservationManager.Controllers
         }
 
         // POST: Administration/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Username,Email,Password,EGN,Name,SurName,FamilyName,PhoneNumber,DateOfApointment")] HotelManagerUser user)
+        public IActionResult Create([Bind("Username,Email,Password,EGN,Name,SurName,FamilyName,PhoneNumber,DateOfApointment")] HotelManagerUser user)
         {
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            //if (ModelState.IsValid)
-            //{
-            //    var newuser = new HotelManagerUser
-            //    {
-
-            //        UserName = Input.Username,
-            //        Email = Input.Email,
-            //        Name = Input.Name,
-            //        Surname = Input.SurName,
-            //        Familyname = Input.FamilyName,
-            //        EGN = Input.EGN,
-            //        DateOfAppointment = Input.DateOfApointment,
-            //        PhoneNumber = Input.PhoneNumber,
-            //        IsActive = true
-            //    };
-            //    var result = await _userManager.CreateAsync(user, Input.Password);
-            //    if (result.Succeeded)
-            //    {
-            //        _logger.LogInformation("User created a new account with password.");
-
-            //        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            //        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-
-            //        return RedirectToAction(nameof(Index));
-            //    }
-            //    foreach (var error in result.Errors)
-            //    {
-            //        ModelState.AddModelError(string.Empty, error.Description);
-            //    }
-            //}
-
-            //// If we got this far, something failed, redisplay form
-            //return View(user);
             return LocalRedirect("/Identity/Account/Register");
         }
 
         // GET: Administration/Edit/5
         public IActionResult Edit(string id)
         {
-
             if (id == null)
             {
                 return NotFound();
@@ -179,52 +95,65 @@ namespace HotelReservationManager.Controllers
         }
 
         // POST: Administration/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        /// <summary>
+        /// Editing method. Uses userManager to change the selected columns of the user databse
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,UserName,Email,EGN,Name,Surname,Familyname,PhoneNumber,DateOfAppointment")] HotelManagerUser user)
+        public async Task<IActionResult> Edit(string id, [Bind("Id,UserName,Email,EGN,Name,Surname,Familyname,PhoneNumber,DateOfAppointment,DateOfDismissal,IsActive")] HotelManagerUser user)
         {
+            var redactedUser = _userManager.Users.FirstOrDefault(u => u.Id == id);
+
             if (id != user.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            //for debug
+            var errors = ModelState
+                            .Where(x => x.Value.Errors.Count > 0)
+                            .Select(x => new { x.Key, x.Value.Errors })
+                            .ToArray();
+
+            //if (ModelState.IsValid)
+            //{
+            try
             {
-                try
-                {
-                    var redactedUser = _userManager.Users.FirstOrDefault(u => u.Id == id);
-                    _userManager.Users.FirstOrDefault(u => u.Id == id).Name = user.Name;
-                    redactedUser.UserName = user.UserName;
-                    redactedUser.Email = user.Email;
+                redactedUser.Name = user.Name;
+                redactedUser.UserName = user.UserName;
+                redactedUser.Email = user.Email;
+                redactedUser.EGN = user.EGN;
+                redactedUser.Name = user.Name;
+                redactedUser.Surname = user.Surname;
+                redactedUser.Familyname = user.Familyname;
+                redactedUser.PhoneNumber = user.PhoneNumber;
+                redactedUser.DateOfAppointment = user.DateOfAppointment;
+                redactedUser.DateOfDismissal = user.DateOfDismissal;
+                redactedUser.IsActive = user.IsActive;
 
-                    var hasPassword = await _userManager.HasPasswordAsync(user);
-                    if (!hasPassword)
-                    {
-                        var addPasswordResult = await _userManager.AddPasswordAsync(user, Input.Password);
-                        if (!addPasswordResult.Succeeded)
-                        {
-                            foreach (var error in addPasswordResult.Errors)
-                            {
-                                ModelState.AddModelError(string.Empty, error.Description);
-                            }
-                        };
-                    }
-
-                    redactedUser.EGN = user.EGN;
-                    redactedUser.Name = user.Name;
-                    redactedUser.Surname = user.Surname;
-                    redactedUser.Familyname = user.Familyname;
-                    redactedUser.PhoneNumber = user.PhoneNumber;
-                    redactedUser.DateOfAppointment = user.DateOfAppointment;
-                }
-                catch (Exception e)
-                {
-                }
-                return RedirectToAction(nameof(Index));
+                //var hasPassword = await _userManager.HasPasswordAsync(user);
+                //if (!hasPassword)
+                //{
+                //    var addPasswordResult = await _userManager.AddPasswordAsync(user, ViewBag["Password"]);
+                //    if (!addPasswordResult.Succeeded)
+                //    {
+                //        foreach (var error in addPasswordResult.Errors)
+                //        {
+                //            ModelState.AddModelError(string.Empty, error.Description);
+                //        }
+                //    };
+                //}
             }
-            return View(user);
+            catch (Exception)
+            {
+            }
+            await _userManager.UpdateAsync(redactedUser);
+            return RedirectToAction(nameof(Index));
+            //}
+            //return View(user);
         }
 
         // GET: Administration/Delete/5
@@ -245,18 +174,25 @@ namespace HotelReservationManager.Controllers
         }
 
         // POST: Administration/Delete/5
+        /// <summary>
+        /// Delete Method. Uses userManager to override the IsActive state of the User
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(string id)
+        public async Task<IActionResult> DeleteConfirmedAsync(string id)
         {
-            _userManager.Users.FirstOrDefault(u => u.Id == id).IsActive = false;
+            var deactivatedUser = _userManager.Users.FirstOrDefault(u => u.Id == id);
+            deactivatedUser.IsActive = false;
+            await _userManager.UpdateAsync(deactivatedUser);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ClientExists(string id)
+        private bool UserExists(string id)
         {
             var user = _userManager.Users.FirstOrDefault(u => u.Id == id);
-            if(user == null)
+            if (user == null)
             {
                 return false;
             }
