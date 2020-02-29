@@ -43,7 +43,9 @@ namespace HotelReservationManager
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("RequireAdministratorRole",
-                     policy => policy.RequireRole("Admin"));
+                    policy => policy.RequireRole("Admin"));
+                options.AddPolicy("UserIsActive",
+                    policy => policy.Requirements.Add(new IsActiveRequirment(true)));
             });
           
             //Add new services in injection container
