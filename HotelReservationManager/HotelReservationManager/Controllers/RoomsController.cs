@@ -14,6 +14,7 @@ namespace HotelReservationManager.Controllers
     public class RoomsController : Controller
     {
         private readonly ApplicationDbContext _context;
+
         private int lastPageSize;
 
         public RoomsController(ApplicationDbContext context)
@@ -30,9 +31,10 @@ namespace HotelReservationManager.Controllers
             //ViewData["CurrentFilter"] = searchString;
             ViewData["CurrentSort"] = sortOrder;
             ViewData["PageSize"] = pageSize;
-            if (TempData["LastPageSize"] != null)
+            
+            if ((int)ViewData["PageSize"] != 0)
             {
-                int lastPageSize = (int)TempData["LastPageSize"];
+                lastPageSize = pageSize;
             }
 
             if (searchString != null)
@@ -46,10 +48,10 @@ namespace HotelReservationManager.Controllers
 
             var rooms = from s in _context.Rooms select s;
 
-            //if (!String.IsNullOrEmpty(searchString))
-            //{
-            //    rooms = rooms.Where(s => s.RoomNumber.Contains(searchString));
-            //}
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                rooms = rooms.Where(s => s.RoomNumber.Contains(searchString));
+            }
 
             switch (sortOrder)
             {
@@ -75,12 +77,7 @@ namespace HotelReservationManager.Controllers
                     rooms = rooms.OrderBy(s => s.Capacity);
                     break;
             }
-
-            if (pageSize != 0)
-            {
-                lastPageSize = pageSize;
-            }
-            else if (lastPageSize == 0 && pageSize == 0)
+            if (lastPageSize == 0 && pageSize == 0)
             {
                 lastPageSize = 10;
             }

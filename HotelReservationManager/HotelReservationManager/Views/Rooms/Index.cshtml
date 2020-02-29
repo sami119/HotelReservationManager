@@ -3,7 +3,6 @@
 @inject IAuthorizationService AuthorizationService
 
 @model PaginatedList<HotelReservationManager.Models.Room>
-@*@model IEnumerable<HotelReservationManager.Models.Room>*@
 
 @{
     ViewData["Title"] = "Room List";
@@ -18,38 +17,15 @@
     }
 </p>
 
-@*<form asp-action="Index" method="get">
-        <div class="form-actions no-color">
-            <p>
-                Room Number: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
-                <input type="submit" value="Search" class="btn btn-default" /> |
-                <a asp-action="Index">Back to Full List</a>
-            </p>
-        </div>
-    </form>*@
-@*<thead>
-        <tr>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["CapacitySortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Room Capacity</a>
-            </th>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["_TypeSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Type of the room</a>
-            </th>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["IsAvailableSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Is the room available?</a>
-            </th>
-            <th>
-                Price per bed for Adult (in euro)
-            </th>
-            <th>
-                Price per bed for Child (in euro)
-            </th>
-            <th>
-                Room Number
-            </th>
-            <th></th>
-        </tr>
-    </thead>*@
+<form asp-action="Index" method="get">
+    <div class="form-actions no-color">
+        <a>
+            Room Number: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+            <input type="submit" value="Search" class="btn btn-default" /> |
+            <a asp-action="Index">Back to Full List</a>
+        </a>
+    </div>
+</form>
 <form>
     <table class="table">
         <thead>
@@ -113,13 +89,13 @@
         </tbody>
     </table>
 
-    @Html.DropDownList("PageSize", new SelectList(new Dictionary<string, int> { { "10", 10 }, { "20", 20 }, { "100", 100 } }, "Key", "Value", Model.PageSize), new
-    {
-    @class = "pro_pag_tf1",
-    id = "pagesizelist"
-    })
+    @*@Html.DropDownList("PageSize", new SelectList(new Dictionary<string, int> { { "10", 10 }, { "20", 20 }, { "100", 100 } }, "Key", "Value", Model.PageSize), new
+        {
+        @class = "pro_pag_tf1",
+        id = "pagesizelist"
+        })*@
 
-    <input type="submit" value="Set" />
+    @*<input type="submit" value="Set" />*@
 </form>
 @{ var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
     var nextDisabled = !Model.HasNextPage ? "disabled" : ""; }
