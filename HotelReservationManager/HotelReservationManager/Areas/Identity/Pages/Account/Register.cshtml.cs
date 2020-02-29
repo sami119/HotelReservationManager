@@ -48,41 +48,41 @@ namespace HotelReservationManager.Areas.Identity.Pages.Account
         {
             [Required]
             [EmailAddress]
-            [Display(Name = "Имейл")]
+            [Display(Name = "Email")]
             public string Email { get; set; }
 
             [Required]
-            [Display(Name = "Потребителско Име")]
+            [Display(Name = "Username")]
             public string Username { get; set; }
 
             [Required]
             [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
             [DataType(DataType.Password)]
-            [Display(Name = "Парола")]
+            [Display(Name = "Password")]
             public string Password { get; set; }
 
             [Required]
-            [Display(Name = "Име")]
+            [Display(Name = "Name")]
             public string Name { get; set; }
 
             [Required]
-            [Display(Name = "Презиме")]
+            [Display(Name = "SecondName")]
             public string SurName { get; set; }
 
             [Required]
-            [Display(Name = "Фамилия")]
+            [Display(Name = "LastName")]
             public string FamilyName { get; set; }
 
             [Required]
-            [Display(Name = "ЕГН")]
+            [Display(Name = "EGN")]
             public string EGN { get; set; }
 
             [Required]
-            [Display(Name = "Телефонен номер")]
+            [Display(Name = "Phone Number")]
             public string PhoneNumber { get; set; }
 
             [Required]
-            [Display(Name = "Дата на назначаване")]
+            [Display(Name = "Date Of Apointment")]
             public DateTime DateOfApointment { get; set; }
         }
 
