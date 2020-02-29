@@ -1,77 +1,138 @@
 ﻿@using Microsoft.AspNetCore.Authorization
+@using HotelReservationManager.Services
 @inject IAuthorizationService AuthorizationService
 
-@model IEnumerable<HotelReservationManager.Models.Room>
+@model PaginatedList<HotelReservationManager.Models.Room>
+
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Room List";
 }
 
-<h1>Index</h1>
+<h1>Room List</h1>
 
 <p>
-    @if ((await AuthorizationService.AuthorizeAsync(User, "RequireAdministratorRole")).Succeeded)
+    @if (( await AuthorizationService.AuthorizeAsync(User, "RequireAdministratorRole") ).Succeeded)
     {
-    <a asp-action="Create">Create New</a>
+        <a asp-action="Create">Add Room</a>
     }
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Room Capacity
-            </th>
-            <th>
-                Type of the room
-            </th>
-            <th>
-                Is the room available?
-            </th>
-            <th>
-                Price per bed for Adult
-            </th>
-            <th>
-                Price per bed for Child
-            </th>
-            <th>
-                Room Number
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+
+<form asp-action="Index" method="get">
+    <div class="form-actions no-color">
+        <a>
+            Room Number: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+            <input type="submit" value="Search" class="btn btn-default" /> |
+            <a asp-action="Index">Back to Full List</a>
+        </a>
+    </div>
+</form>
+<form>
+    <table class="table">
+        <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Capacity)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item._Type)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IsAvailable)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PricePerBedForAdult)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PricePerBedForChild)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoomNumber)
-                </td>
-                <td>
-                    @if ((await AuthorizationService.AuthorizeAsync(User, "RequireAdministratorRole")).Succeeded)
-                    {
-                        <a asp-action="Edit" asp-route-id="@item.ID">Edit</a>
-                    } |
-                    <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                    @if ((await AuthorizationService.AuthorizeAsync(User, "RequireAdministratorRole")).Succeeded)
-                    {
-                        <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
-                    }
-                </td>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["CapacitySortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Room Capacity</a>
+                </th>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["_TypeSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Type of the room</a>
+                </th>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["IsAvailableSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Is the room available?</a>
+                </th>
+                <th>
+                    Price per bed for Adult (in euro)
+                </th>
+                <th>
+                    Price per bed for Child (in euro)
+                </th>
+                <th>
+                    Room Number
+                </th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Capacity)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item._Type)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.IsAvailable)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PricePerBedForAdult)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PricePerBedForChild)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.RoomNumber)
+                    </td>
+                    <td>
+                        @if (( await AuthorizationService.AuthorizeAsync(User, "RequireAdministratorRole") ).Succeeded)
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.ID">Edit</a>
+                        }
+                        <a asp-action="Details" asp-route-id="@item.ID">Details</a>
+                        @if (( await AuthorizationService.AuthorizeAsync(User, "RequireAdministratorRole") ).Succeeded)
+                        {
+                            <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @*@Html.DropDownList("PageSize", new SelectList(new Dictionary<string, int> { { "10", 10 }, { "20", 20 }, { "100", 100 } }, "Key", "Value", Model.PageSize), new
+        {
+        @class = "pro_pag_tf1",
+        id = "pagesizelist"
+        })*@
+
+    @*<input type="submit" value="Set" />*@
+</form>
+@{ var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : ""; }
+
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex - 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @prevDisabled">
+    Previous
+</a>
+
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex + 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @nextDisabled">
+    Next
+</a>
+
+@*<form method="post">
+        <input asp-for="PageSize" />
+        <input type="submit" />
+    </form>*@
+
+@*<form method="post">
+
+        @Html.DropDownList("PageSize", new SelectList(new Dictionary<string, int> { { "10", 10 }, { "20", 20 }, { "100", 100 } }, "Key", "Value", Model.PageSize), new
+        {
+            @class = "pro_pag_tf1",
+            id = "pagesizelist"
+        })
+        @*<select asp-for="PageSize">
+                <option>10</option>
+                <option>25</option>
+                <option>50</option>
+            </select>
+    <input type="submit" value="Set" />
+    </form>*@
+
