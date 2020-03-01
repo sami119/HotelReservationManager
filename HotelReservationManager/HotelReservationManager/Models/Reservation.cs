@@ -10,11 +10,11 @@ namespace HotelReservationManager.Models
     {
         public int ID { get; set; }
 
-        public Room ReservedRoom { get; set; }
+        public string ReservedRoomID { get; set; }
 
-        public HotelManagerUser UserMadeTheReservation { get; set; }
+        public string UserName { get; set; }
 
-        public List<Client> Clients { get; set; }
+        public string ClientName { get; set; }
 
         public DateTime DateOfCheckIn { get; set; }
 
@@ -24,6 +24,6 @@ namespace HotelReservationManager.Models
 
         public bool AllInclusive { get; set; }
 
-        public int Cost { get; set; }
+        public decimal Cost { get; set; }
     }
 }
