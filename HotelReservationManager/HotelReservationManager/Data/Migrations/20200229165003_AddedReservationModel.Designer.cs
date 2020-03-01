@@ -4,14 +4,16 @@ using HotelReservationManager.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HotelReservationManager.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200229165003_AddedReservationModel")]
+    partial class AddedReservationModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,7 +47,12 @@ namespace HotelReservationManager.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ReservationID")
+                        .HasColumnType("int");
+
                     b.HasKey("ID");
+
+                    b.HasIndex("ReservationID");
 
                     b.ToTable("Clients");
                 });
@@ -60,11 +67,8 @@ namespace HotelReservationManager.Data.Migrations
                     b.Property<bool>("AllInclusive")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ClientName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Cost")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("Cost")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("DateOfCheckIn")
                         .HasColumnType("datetime2");
@@ -75,13 +79,17 @@ namespace HotelReservationManager.Data.Migrations
                     b.Property<bool>("IncludeBreakfast")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ReservedRoomID")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("ReservedRoomID")
+                        .HasColumnType("int");
 
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("UserMadeTheReservationId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("ReservedRoomID");
+
+                    b.HasIndex("UserMadeTheReservationId");
 
                     b.ToTable("Reservations");
                 });
@@ -180,6 +188,10 @@ namespace HotelReservationManager.Data.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
@@ -231,6 +243,8 @@ namespace HotelReservationManager.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -315,6 +329,52 @@ namespace HotelReservationManager.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("HotelReservationManager.Areas.Identity.Data.HotelManagerUser", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.Property<DateTime>("DateOfAppointment")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateOfDismissal")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EGN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Familyname")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Surname")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasDiscriminator().HasValue("HotelManagerUser");
+                });
+
+            modelBuilder.Entity("HotelReservationManager.Models.Client", b =>
+                {
+                    b.HasOne("HotelReservationManager.Models.Reservation", null)
+                        .WithMany("Clients")
+                        .HasForeignKey("ReservationID");
+                });
+
+            modelBuilder.Entity("HotelReservationManager.Models.Reservation", b =>
+                {
+                    b.HasOne("HotelReservationManager.Models.Room", "ReservedRoom")
+                        .WithMany()
+                        .HasForeignKey("ReservedRoomID");
+
+                    b.HasOne("HotelReservationManager.Areas.Identity.Data.HotelManagerUser", "UserMadeTheReservation")
+                        .WithMany()
+                        .HasForeignKey("UserMadeTheReservationId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
