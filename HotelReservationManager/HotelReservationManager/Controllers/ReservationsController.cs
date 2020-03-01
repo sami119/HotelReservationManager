@@ -11,9 +11,11 @@ using Microsoft.AspNetCore.Identity;
 using HotelReservationManager.Areas.Identity.Data;
 using Microsoft.AspNetCore.Http;
 using HotelReservationManager.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HotelReservationManager.Controllers
 {
+    [Authorize]
     public class ReservationsController : Controller
     {
         private readonly ApplicationDbContext _context;

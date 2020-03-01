@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace HotelReservationManager.Controllers
 {
+    [Authorize]
     //[Authorize(Policy = "UserIsActive")]
     public class ClientsController : Controller
     {
